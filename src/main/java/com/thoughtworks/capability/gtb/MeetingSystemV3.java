@@ -1,6 +1,6 @@
 package com.thoughtworks.capability.gtb;
 
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -18,7 +18,7 @@ import java.time.format.DateTimeFormatter;
 public class MeetingSystemV3 {
 
   public static void main(String[] args) {
-    String timeStr = "2020-04-01 14:30:00";
+    String timeStr = "2020-10-01 14:30:00";
 
     // 根据格式创建格式化类
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -26,16 +26,20 @@ public class MeetingSystemV3 {
     LocalDateTime meetingTime = LocalDateTime.parse(timeStr, formatter);
 
     LocalDateTime now = LocalDateTime.now();
-    if (now.isAfter(meetingTime)) {
-      LocalDateTime tomorrow = now.plusDays(1);
-      int newDayOfYear = tomorrow.getDayOfYear();
-      meetingTime = meetingTime.withDayOfYear(newDayOfYear);
+    ZonedDateTime londonTime = meetingTime.atZone(ZoneId.of("Europe/London"));
+
+    if (now.isAfter(londonTime.toLocalDateTime())) {
+      londonTime = londonTime.plusDays(1);
+      ZonedDateTime chicagoTime = londonTime.withZoneSameInstant(ZoneId.of("America/Chicago"));
 
       // 格式化新会议时间
-      String showTimeStr = formatter.format(meetingTime);
+      String showTimeStr = formatter.format(chicagoTime);
       System.out.println(showTimeStr);
     } else {
       System.out.println("会议还没开始呢");
+      Period period = Period.between(LocalDate.now(), londonTime.toLocalDate());
+      System.out.println("距离会议开始还剩：" + period.getDays() + "天");
+
     }
   }
 }
